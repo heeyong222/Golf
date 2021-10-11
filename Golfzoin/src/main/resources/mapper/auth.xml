@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.golfzon.golfzoin.mapper.AuthMapper">
+	<!-- 회원가입 -->
+	<insert id="userRegister" parameterType="userDto">
+		insert 
+			into dbo.golfzoin_user(
+			id, 
+			name, 
+			nickname, 
+			authType, 
+			gender, 
+			pw, 
+			email, 
+			address,
+			p_number, 
+			birth, 
+			regdate, 
+			hit, 
+			lat, 
+			lon, 
+			profile
+		)
+		values(
+			#{id}, 
+			#{name}, 
+			#{nickname}, 
+			#{authType}, 
+			#{gender}, 
+			#{pw}, 
+			#{email}, 
+			#{address}, 
+			#{p_number}, 
+			CONVERT(date, #{birth}), 
+			getdate(), 
+			#{hit}, 
+			#{lat}, 
+			#{lon}, 
+			#{profile} 
+		)
+	</insert>
+	
+	<!-- 로그인 -->
+	<select id="login" parameterType="map" resultType="userDto">
+		select 
+			authType, 
+			id, 
+			pw, 
+			email, 
+			name, 
+			nickname, 
+			address, 
+			<!-- CONVERT(CHAR(10), birth, 23) as  -->birth, 
+			p_number, 
+			gender, 
+			hit, 
+			lat, 
+			lon, 
+			profile
+		from 
+			dbo.golfzoin_user with(nolock)
+		where 
+			id= #{id} 
+			and 
+			pw = #{pw}
+	</select>
+	
+	<!-- id 체크 -->
+	<select id="isvalidid" parameterType="String" resultType="int">
+		select 
+			count(*) 
+		from 
+			dbo.golfzoin_user with(nolock)
+		where 
+			id=#{id}
+	</select>
+	
+	<!-- 닉네임 체크 -->
+	<select id="isvalidnickname" parameterType="String" resultType="int">
+		select 
+			count(*) 
+		from 
+			dbo.golfzoin_user
+		where 
+			nickname = #{nickname}
+	</select>
+</mapper>
