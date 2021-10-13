@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.golfzon.golfzoin.mapper.UserMapper">
+	<select id="userdetail" parameterType="String" resultType="userDetailDto">
+		select 
+			id as userid, 
+			name, 
+			nickname, 
+			gender, 
+			email, 
+			p_number, 
+			profile, 
+			address, 
+			birth, 
+			hit
+		from 
+			dbo.golfzoin_user
+		where
+			id = #{userid}
+	</select>
+	
+	<update id="modifyuser" parameterType="userDto">
+		UPDATE
+			dbo.golfzoin_user
+		<set>
+		    <if test="nickname != null">nickname = #{nickname},</if>
+		    <if test="pw != null">pw = #{pw},</if>
+		    <if test="address != null">address = #{address},</if>
+		    <if test="lat != 0 and lat != null">lat = #{lat},</if>
+		    <if test="lon != 0">lon = #{lon},</if>
+		    <if test="p_number != null">p_number = #{p_number},</if>
+		    <if test="profile != null">profile = #{profile},</if>
+		    <if test="hit != 0">hit = #{hit},</if>
+		</set>
+		where 
+			id = #{id}
+	</update>
+	
+	<select id="finduser" parameterType="String" resultType="findUserDto">
+		select 
+			id, 
+			nickname, 
+			profile,
+			(select count(*) from dbo.golfzoin_follow f where f.targetid = u.id and f.userid = #{userid}) as isfollow
+		from 
+			dbo.golfzoin_user u
+		where 
+			id like '%${keyword}%'
+			or
+			nickname like '%${keyword}%'
+	</select>
+	
+	<insert id="addfollow" parameterType="map">
+		insert into
+			dbo.golfzoin_follow
+			(
+				userid, 
+				targetid
+			)
+		values(
+			#{userid}, 
+			#{targetid}
+			)
+	</insert>
+	<!-- 팔로워 조회 -->
+	<select id="followerlist" parameterType="String" resultType="findUserDto">
+		select 
+			id,
+			nickname,
+			profile
+		from 
+			dbo.golfzoin_user
+		where 
+			id in 
+			(
+				select 
+					userid as id
+				from 
+					dbo.golfzoin_follow
+				where 
+					targetid = #{id}
+			)
+			
+	</select>
+	<!-- 팔로잉 조회 -->
+	<select id="followinglist" parameterType="String" resultType="findUserDto">
+		select 
+			id,
+			nickname,
+			profile
+		from 
+			dbo.golfzoin_user
+		where 
+			id in 
+			(
+				select 
+					targetid as id
+				from 
+					dbo.golfzoin_follow
+				where 
+					userid = #{id}
+			)
+			
+			
+	</select>
+	
+</mapper>
